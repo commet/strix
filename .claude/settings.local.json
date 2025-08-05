@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(py test_rag_search.py)",
+      "Bash(pip install:*)"
+    ],
+    "deny": []
+  }
+}
