@@ -1,68 +1,63 @@
 """
-Test RAG Search and Response Generation
+Test RAG Search to Debug Reference Issues
 """
-import os
-import sys
 import asyncio
-from dotenv import load_dotenv
+import sys
+import os
+import json
 
-# Add src to path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from rag.strix_chain import STRIXChain
-import logging
+from src.rag.strix_chain_with_sources import STRIXChainWithSources
+from dotenv import load_dotenv
 
-# Setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+load_dotenv()
 
-async def test_rag_search():
-    """Test RAG search functionality"""
-    load_dotenv()
-    
-    print("STRIX RAG Search Test")
-    print("="*50)
+async def test_search():
+    print("=== STRIX RAG Search Test ===\n")
     
     # Initialize chain
-    chain = STRIXChain()
+    chain = STRIXChainWithSources()
     
-    # Test queries
-    test_queries = [
-        "전고체 배터리 개발 현황은 어떻게 되나요?",
-        "최근 배터리 시장 동향을 알려주세요",
-        "리튬 가격 변동과 리스크 관리 방안은?",
-        "EU 배터리 규제 내용을 요약해주세요",
-        "우리 회사의 전고체 배터리 투자 계획은?"
-    ]
+    # Test question
+    test_question = "전고체 배터리 개발 현황은?"
+    print(f"Question: {test_question}\n")
     
-    for i, query in enumerate(test_queries, 1):
-        print(f"\n{i}. Query: {query}")
-        print("-" * 50)
+    # Execute search and formatting
+    print("1. Searching documents...")
+    search_result = await chain.search_and_format_with_sources({"question": test_question})
+    
+    print("\n2. Search results:")
+    print(f"- Internal context length: {len(search_result.get('internal_context', ''))}")
+    print(f"- External context length: {len(search_result.get('external_context', ''))}")
+    
+    print("\n3. Stored source documents:")
+    if hasattr(chain, 'source_documents'):
+        internal_docs = chain.source_documents.get('internal', [])
+        external_docs = chain.source_documents.get('external', [])
         
-        try:
-            # Invoke the chain
-            result = await chain.ainvoke({"question": query})
+        print(f"- Internal docs: {len(internal_docs)}")
+        for i, doc in enumerate(internal_docs, 1):
+            print(f"  [{i}] {doc.get('metadata', {}).get('title', 'N/A')}")
             
-            print(f"Answer: {result['answer']}")
-            print(f"\nFound {len(result['internal_docs'])} internal documents")
-            print(f"Found {len(result['external_docs'])} external documents")
-            
-            # Show source documents
-            if result['internal_docs']:
-                print("\nInternal Sources:")
-                for doc in result['internal_docs'][:2]:  # Show first 2
-                    print(f"  - {doc.metadata.get('title', 'Untitled')} ({doc.metadata.get('organization', 'Unknown')})")
-            
-            if result['external_docs']:
-                print("\nExternal Sources:")
-                for doc in result['external_docs'][:2]:  # Show first 2
-                    print(f"  - {doc.metadata.get('title', 'Untitled')} ({doc.metadata.get('source', 'Unknown')})")
-                    
-        except Exception as e:
-            logger.error(f"Error processing query: {e}")
-            print(f"[ERROR] Failed to process query: {e}")
+        print(f"- External docs: {len(external_docs)}")
+        for i, doc in enumerate(external_docs, len(internal_docs) + 1):
+            print(f"  [{i}] {doc.get('metadata', {}).get('title', 'N/A')}")
     
-    # Skip interactive mode to avoid EOF errors
+    print("\n4. Generating full response...")
+    result = await chain.ainvoke_with_sources({"question": test_question})
+    
+    print("\n5. Final results:")
+    print(f"- Answer length: {len(result['answer'])}")
+    print(f"- Source count: {result['total_sources']}")
+    print("\nSource details:")
+    for src in result['sources']:
+        print(f"  [{src['number']}] {src['title']} ({src['type']}) - {src['organization']}")
+    
+    # Check JSON response
+    print("\n6. JSON response sample:")
+    json_response = json.dumps(result, ensure_ascii=False, indent=2)
+    print(json_response[:1000] + "..." if len(json_response) > 1000 else json_response)
 
 if __name__ == "__main__":
-    asyncio.run(test_rag_search())
+    asyncio.run(test_search())
