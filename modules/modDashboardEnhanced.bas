@@ -75,7 +75,7 @@ Sub CreateEnhancedDashboard()
     Set btn = ws.Buttons.Add(ws.Range("B7").Left, ws.Range("B7").Top, 120, 35)
     With btn
         .Caption = "🔍 검색하기"
-        .OnAction = "RunSearchWithSources"  ' 소스 포함 검색
+        .OnAction = "RunSearchWithSources"
         .Font.Size = 12
         .Font.Bold = True
     End With
@@ -106,7 +106,7 @@ Sub CreateEnhancedDashboard()
         .Borders.LineStyle = xlContinuous
     End With
     
-    ' 답변 표시 영역 (크기 축소)
+    ' 답변 표시 영역
     With ws.Range("B10:F20")
         .Merge
         .Name = "AnswerArea"
@@ -260,34 +260,34 @@ Sub ClearAll()
 End Sub
 
 ' 빠른 질문들 (레퍼런스 포함 검색 사용)
-Sub QuickQuestion1()
+Public Sub QuickQuestion1()
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("Dashboard")
     ws.Range("C5").Value = "전고체 배터리 개발 현황은?"
     ws.Range("C5").Font.Color = RGB(0, 0, 0)
-    Call RunSearchWithSources
+    Call modSTRIXwithSources.RunSearchWithSources
 End Sub
 
-Sub QuickQuestion2()
+Public Sub QuickQuestion2()
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("Dashboard")
     ws.Range("C5").Value = "최근 배터리 시장 동향은?"
     ws.Range("C5").Font.Color = RGB(0, 0, 0)
-    Call RunSearchWithSources
+    Call modSTRIXwithSources.RunSearchWithSources
 End Sub
 
-Sub QuickQuestion3()
+Public Sub QuickQuestion3()
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("Dashboard")
     ws.Range("C5").Value = "ESG 규제 현황과 대응 방안은?"
     ws.Range("C5").Font.Color = RGB(0, 0, 0)
-    Call RunSearchWithSources
+    Call modSTRIXwithSources.RunSearchWithSources
 End Sub
 
-Sub QuickQuestion4()
+Public Sub QuickQuestion4()
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("Dashboard")
     ws.Range("C5").Value = "경쟁사의 기술 개발 동향은?"
     ws.Range("C5").Font.Color = RGB(0, 0, 0)
-    Call RunSearchWithSources
+    Call modSTRIXwithSources.RunSearchWithSources
 End Sub

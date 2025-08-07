@@ -316,21 +316,7 @@ Sub ExecuteSearch()
     
 End Sub
 
-' 빠른 질문 템플릿 함수들
-Sub QuickQuestion1()
-    ThisWorkbook.Sheets("STRIX Dashboard").Range("QuestionInput").Value = "전고체 배터리 개발 현황은?"
-    ExecuteSearch
-End Sub
-
-Sub QuickQuestion2()
-    ThisWorkbook.Sheets("STRIX Dashboard").Range("QuestionInput").Value = "최근 배터리 시장 동향은?"
-    ExecuteSearch
-End Sub
-
-Sub QuickQuestion3()
-    ThisWorkbook.Sheets("STRIX Dashboard").Range("QuestionInput").Value = "경쟁사의 기술 개발 현황은?"
-    ExecuteSearch
-End Sub
+' 빠른 질문 템플릿 함수들 - modDashboardEnhanced.bas에서 처리
 
 ' 질문 입력 영역 클릭 시 placeholder 제거
 Sub Worksheet_SelectionChange(ByVal Target As Range)
