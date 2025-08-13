@@ -74,8 +74,8 @@ Sub CreateEnhancedDashboard()
     ' ===== 3. 메인 버튼 =====
     Set btn = ws.Buttons.Add(ws.Range("B7").Left, ws.Range("B7").Top, 120, 35)
     With btn
-        .Caption = "🔍 검색하기"
-        .OnAction = "RunSearchWithSources"
+        .Caption = "🔍 AI 검색"
+        .OnAction = "modRAGAPI.RunRAGSearchWithSources"
         .Font.Size = 12
         .Font.Bold = True
     End With
@@ -132,8 +132,8 @@ Sub CreateEnhancedDashboard()
         .Borders.LineStyle = xlContinuous
     End With
     
-    ' 레퍼런스 표시 영역
-    With ws.Range("B23:F35")
+    ' 레퍼런스 표시 영역 (30개 이상 표시 가능)
+    With ws.Range("B23:F58")
         .Interior.Color = RGB(255, 255, 255)
         .Borders.LineStyle = xlContinuous
         .Borders.Color = RGB(200, 200, 200)
@@ -153,33 +153,33 @@ Sub CreateEnhancedDashboard()
     End With
     
     ' ===== 6. 빠른 질문 섹션 =====
-    ws.Range("B37").Value = "빠른 질문:"
-    ws.Range("B37").Font.Bold = True
-    ws.Range("B37").Font.Size = 12
+    ws.Range("B60").Value = "빠른 질문:"
+    ws.Range("B60").Font.Bold = True
+    ws.Range("B60").Font.Size = 12
     
     ' 빠른 질문 버튼들
-    Set btn = ws.Buttons.Add(ws.Range("B38").Left, ws.Range("B38").Top, 180, 30)
+    Set btn = ws.Buttons.Add(ws.Range("B61").Left, ws.Range("B61").Top, 180, 30)
     With btn
         .Caption = "전고체 배터리 개발 현황"
         .OnAction = "QuickQuestion1"
         .Font.Size = 11
     End With
     
-    Set btn = ws.Buttons.Add(ws.Range("D38").Left, ws.Range("D38").Top, 180, 30)
+    Set btn = ws.Buttons.Add(ws.Range("D61").Left, ws.Range("D61").Top, 180, 30)
     With btn
         .Caption = "최근 배터리 시장 동향"
         .OnAction = "QuickQuestion2"
         .Font.Size = 11
     End With
     
-    Set btn = ws.Buttons.Add(ws.Range("B39").Left, ws.Range("B39").Top + 10, 180, 30)
+    Set btn = ws.Buttons.Add(ws.Range("B62").Left, ws.Range("B62").Top + 10, 180, 30)
     With btn
         .Caption = "ESG 규제 현황"
         .OnAction = "QuickQuestion3"
         .Font.Size = 11
     End With
     
-    Set btn = ws.Buttons.Add(ws.Range("D39").Left, ws.Range("D39").Top + 10, 180, 30)
+    Set btn = ws.Buttons.Add(ws.Range("D62").Left, ws.Range("D62").Top + 10, 180, 30)
     With btn
         .Caption = "경쟁사 기술 동향"
         .OnAction = "QuickQuestion4"
@@ -187,19 +187,19 @@ Sub CreateEnhancedDashboard()
     End With
     
     ' ===== 7. 상태바 =====
-    With ws.Range("B41:F41")
+    With ws.Range("B64:F64")
         .Merge
         .Name = "StatusBar"
         .Interior.Color = RGB(255, 255, 255)
         .Borders.LineStyle = xlContinuous
-        .Value = "✅ 준비 완료 - 레퍼런스 기능 활성화"
+        .Value = "✅ 준비 완료 - 30개 참고문서 활성화"
         .HorizontalAlignment = xlCenter
         .Font.Size = 10
         .Font.Color = RGB(0, 150, 0)
     End With
     
     ' ===== 8. 범례 =====
-    With ws.Range("B43:F43")
+    With ws.Range("B66:F66")
         .Merge
         .Value = "💡 Tip: 답변의 [1], [2] 번호는 아래 참고 문서와 매칭됩니다"
         .Font.Size = 9
@@ -213,13 +213,13 @@ Sub CreateEnhancedDashboard()
     ActiveWindow.Zoom = 90
     ActiveWindow.DisplayGridlines = False
     
-    MsgBox "Enhanced STRIX Dashboard가 생성되었습니다!" & vbLf & vbLf & _
-           "주요 기능:" & vbLf & _
-           "- 답변에 참고 문서 번호 표시 [1], [2]..." & vbLf & _
-           "- 각 문서의 상세 정보 확인 가능" & vbLf & _
-           "- 내부/외부 문서 구분 표시" & vbLf & vbLf & _
-           "API 서버 실행: py api_server_with_sources.py", _
-           vbInformation, "STRIX v2.0"
+    MsgBox "Enhanced STRIX Dashboard가 생성되었습니다!" & Chr(10) & Chr(10) & _
+           "주요 기능:" & Chr(10) & _
+           "- 30개 이상의 최신 배터리 업계 참고문서" & Chr(10) & _
+           "- SK온 합병, CATL/BYD 동향, 전고체 배터리 등" & Chr(10) & _
+           "- 답변에 참고 문서 번호 자동 매칭 [1], [2]..." & Chr(10) & _
+           "- 내부/외부/긴급 문서 구분 표시", _
+           vbInformation, "STRIX v2.0 - Enhanced Sources"
 End Sub
 
 ' 전체 초기화
@@ -235,9 +235,9 @@ Sub ClearAll()
     ws.Range("B10").Value = "답변이 여기에 표시됩니다..."
     ws.Range("B10").Font.Color = RGB(150, 150, 150)
     
-    ' 레퍼런스 초기화
-    ws.Range("B24:F35").Clear
-    With ws.Range("B24:F35")
+    ' 레퍼런스 초기화 (확장된 영역)
+    ws.Range("B24:F58").Clear
+    With ws.Range("B24:F58")
         .Interior.Color = RGB(255, 255, 255)
         .Borders.LineStyle = xlContinuous
         .Borders.Color = RGB(200, 200, 200)
@@ -259,13 +259,13 @@ Sub ClearAll()
     ws.Range("B41").Value = "✅ 초기화 완료"
 End Sub
 
-' 빠른 질문들 (레퍼런스 포함 검색 사용)
+' 빠른 질문들 (RAG API 사용)
 Public Sub QuickQuestion1()
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("Dashboard")
     ws.Range("C5").Value = "전고체 배터리 개발 현황은?"
     ws.Range("C5").Font.Color = RGB(0, 0, 0)
-    Call modSTRIXwithSources.RunSearchWithSources
+    Call modRAGAPI.RunRAGSearchWithSources
 End Sub
 
 Public Sub QuickQuestion2()
@@ -273,7 +273,7 @@ Public Sub QuickQuestion2()
     Set ws = ThisWorkbook.Sheets("Dashboard")
     ws.Range("C5").Value = "최근 배터리 시장 동향은?"
     ws.Range("C5").Font.Color = RGB(0, 0, 0)
-    Call modSTRIXwithSources.RunSearchWithSources
+    Call modRAGAPI.RunRAGSearchWithSources
 End Sub
 
 Public Sub QuickQuestion3()
@@ -281,7 +281,7 @@ Public Sub QuickQuestion3()
     Set ws = ThisWorkbook.Sheets("Dashboard")
     ws.Range("C5").Value = "ESG 규제 현황과 대응 방안은?"
     ws.Range("C5").Font.Color = RGB(0, 0, 0)
-    Call modSTRIXwithSources.RunSearchWithSources
+    Call modRAGAPI.RunRAGSearchWithSources
 End Sub
 
 Public Sub QuickQuestion4()
@@ -289,5 +289,5 @@ Public Sub QuickQuestion4()
     Set ws = ThisWorkbook.Sheets("Dashboard")
     ws.Range("C5").Value = "경쟁사의 기술 개발 동향은?"
     ws.Range("C5").Font.Color = RGB(0, 0, 0)
-    Call modSTRIXwithSources.RunSearchWithSources
+    Call modRAGAPI.RunRAGSearchWithSources
 End Sub

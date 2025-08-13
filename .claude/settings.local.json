@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(py test_rag_search.py)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(find:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }
