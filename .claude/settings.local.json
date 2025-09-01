@@ -4,8 +4,12 @@
       "Bash(py test_rag_search.py)",
       "Bash(pip install:*)",
       "Bash(find:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git push:*)"
     ],
-    "deny": []
+    "deny": [],
+    "additionalDirectories": [
+      "C:\\Users\\admin\\documents\\github\\strix_v2"
+    ]
   }
 }

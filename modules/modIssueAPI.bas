@@ -3,7 +3,7 @@ Attribute VB_Name = "modIssueAPI"
 Option Explicit
 
 ' API 기본 URL
-Private Const API_BASE_URL As String = "http://localhost:5000/api"
+Private Const API_BASE_URL As String = "http://localhost:5001/api"
 
 ' 이슈 목록 가져오기
 Function GetIssueList(Optional category As String = "", _
@@ -195,6 +195,10 @@ Private Function ParseIssueList(jsonStr As String) As Collection
     Dim startPos As Long, endPos As Long
     Dim issueJson As String
     
+    ' 디버그 출력
+    Debug.Print "ParseIssueList - JSON Length: " & Len(jsonStr)
+    Debug.Print "ParseIssueList - First 200 chars: " & Left(jsonStr, 200)
+    
     ' 간단한 JSON 배열 파싱
     startPos = InStr(1, jsonStr, "[")
     endPos = InStrRev(jsonStr, "]")
@@ -202,10 +206,12 @@ Private Function ParseIssueList(jsonStr As String) As Collection
     If startPos > 0 And endPos > startPos Then
         Dim arrayContent As String
         arrayContent = Mid(jsonStr, startPos + 1, endPos - startPos - 1)
+        Debug.Print "ParseIssueList - Array content length: " & Len(arrayContent)
         
         ' 각 객체 파싱
         Dim objects() As String
         objects = SplitJSONObjects(arrayContent)
+        Debug.Print "ParseIssueList - Objects count: " & (UBound(objects) + 1)
         
         Dim i As Integer
         For i = 0 To UBound(objects)
@@ -214,11 +220,15 @@ Private Function ParseIssueList(jsonStr As String) As Collection
                 Set issue = ParseSingleIssue(objects(i))
                 If Not issue Is Nothing Then
                     issues.Add issue
+                    Debug.Print "ParseIssueList - Added issue: " & issue("title")
                 End If
             End If
         Next i
+    Else
+        Debug.Print "ParseIssueList - No valid JSON array found"
     End If
     
+    Debug.Print "ParseIssueList - Total issues: " & issues.Count
     Set ParseIssueList = issues
 End Function
 
@@ -501,7 +511,7 @@ Sub UpdateIssueTimeline()
     Next issue
     
     Application.StatusBar = False
-    MsgBox "타임라인이 업데이트되었습니다.", vbInformation
+    MsgBox "타임라인이 업데이트되었습니다: " & issues.Count & "개 이슈", vbInformation
 End Sub
 
 ' 상태 한글 변환

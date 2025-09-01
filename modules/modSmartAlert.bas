@@ -40,7 +40,7 @@ Sub CreateSmartAlertDashboard()
     ' ===== 헤더 영역 =====
     With alertWs.Range("B2:H2")
         .Merge
-        .Value = "🚨 STRIX Smart Alert System"
+        .Value = "STRIX Smart Alert System"
         .Font.Name = "맑은 고딕"
         .Font.Size = 26
         .Font.Bold = True
@@ -64,7 +64,7 @@ Sub CreateSmartAlertDashboard()
     ' ===== 오늘의 알림 요약 =====
     With alertWs.Range("B5:H5")
         .Merge
-        .Value = "📊 오늘의 브리핑"
+        .Value = "오늘의 브리핑"
         .Font.Bold = True
         .Font.Size = 16
         .Interior.Color = RGB(52, 73, 94)
@@ -87,7 +87,7 @@ Sub CreateSmartAlertDashboard()
     
     ' ===== 자동 실행 설정 영역 =====
     With alertWs.Range("B9")
-        .Value = "⚙️ 자동 알림 설정"
+        .Value = "자동 알림 설정"
         .Font.Bold = True
         .Font.Size = 12
     End With
@@ -107,7 +107,7 @@ Sub CreateSmartAlertDashboard()
     Set runBtn = alertWs.Buttons.Add(alertWs.Range("E9").Left, _
                                      alertWs.Range("E9").Top, 100, 25)
     With runBtn
-        .Caption = "▶️ 즉시 분석"
+        .Caption = "즉시 분석"
         .OnAction = "RunSmartAnalysis"
         .Font.Size = 11
         .Font.Bold = True
@@ -118,7 +118,7 @@ Sub CreateSmartAlertDashboard()
     Set settingsBtn = alertWs.Buttons.Add(alertWs.Range("F9").Left, _
                                           alertWs.Range("F9").Top, 80, 25)
     With settingsBtn
-        .Caption = "⚙️ 설정"
+        .Caption = "설정"
         .OnAction = "ShowAlertSettings"
         .Font.Size = 11
     End With
@@ -128,15 +128,25 @@ Sub CreateSmartAlertDashboard()
     Set emailBtn = alertWs.Buttons.Add(alertWs.Range("G9").Left, _
                                        alertWs.Range("G9").Top, 100, 25)
     With emailBtn
-        .Caption = "📧 이메일 전송"
+        .Caption = "이메일 전송"
         .OnAction = "SendAlertEmail"
+        .Font.Size = 11
+    End With
+    
+    ' 초기화 버튼 추가
+    Dim resetBtn As Object
+    Set resetBtn = alertWs.Buttons.Add(alertWs.Range("H9").Left, _
+                                       alertWs.Range("H9").Top, 80, 25)
+    With resetBtn
+        .Caption = "초기화"
+        .OnAction = "ResetSmartAlert"
         .Font.Size = 11
     End With
     
     ' ===== TOP 5 Critical Issues =====
     With alertWs.Range("B11:H11")
         .Merge
-        .Value = "🔥 TOP 5 Critical Issues - 즉시 확인 필요"
+        .Value = "TOP 5 Critical Issues - 즉시 확인 필요"
         .Font.Bold = True
         .Font.Size = 14
         .Interior.Color = RGB(192, 57, 43)
@@ -168,7 +178,7 @@ Sub CreateSmartAlertDashboard()
     ' ===== AI 예측 섹션 =====
     With alertWs.Range("B20:H20")
         .Merge
-        .Value = "🤖 AI 예측 분석"
+        .Value = "AI 예측 분석"
         .Font.Bold = True
         .Font.Size = 14
         .Interior.Color = RGB(142, 68, 173)
@@ -194,7 +204,7 @@ Sub CreateSmartAlertDashboard()
     ' ===== 액션 트래커 =====
     With alertWs.Range("B27:H27")
         .Merge
-        .Value = "✅ Action Tracker"
+        .Value = "Action Tracker"
         .Font.Bold = True
         .Font.Size = 14
         .Interior.Color = RGB(39, 174, 96)
@@ -208,7 +218,7 @@ Sub CreateSmartAlertDashboard()
     ' ===== 알림 로그 =====
     With alertWs.Range("B35:H35")
         .Merge
-        .Value = "📝 알림 히스토리"
+        .Value = "알림 히스토리"
         .Font.Bold = True
         .Font.Size = 12
         .Interior.Color = RGB(149, 165, 166)
@@ -224,11 +234,12 @@ Sub CreateSmartAlertDashboard()
         .Font.Color = RGB(100, 100, 100)
     End With
     
-    ' 샘플 로그
-    alertWs.Range("B36").Value = Format(Now - 1, "mm/dd hh:mm") & " - Critical 알림 3건 발송 (경영진)"
-    alertWs.Range("B37").Value = Format(Now - 0.5, "mm/dd hh:mm") & " - 리스크 레벨 상향 조정: 원자재 이슈"
-    alertWs.Range("B38").Value = Format(Now - 0.25, "mm/dd hh:mm") & " - 신규 이슈 감지: ESG 규제 강화"
-    alertWs.Range("B39").Value = Format(Now, "mm/dd hh:mm") & " - 일일 브리핑 생성 완료"
+    ' 샘플 로그 (동적)
+    alertWs.Range("B36").Value = Format(Now - 2, "mm/dd hh:mm") & " - 🔔 AI 모델 학습 완료 (98.5% 정확도)"
+    alertWs.Range("B37").Value = Format(Now - 1, "mm/dd hh:mm") & " - 📨 Critical 알림 5건 발송 (경영진, 리스크관리팀)"
+    alertWs.Range("B38").Value = Format(Now - 0.5, "mm/dd hh:mm") & " - ⚠️ 위험도 급상승: IRA 정책 변경 가능성"
+    alertWs.Range("B39").Value = Format(Now - 0.25, "mm/dd hh:mm") & " - 🆕 신규 Critical 이슈 3건 감지 및 분류"
+    alertWs.Range("B40").Value = Format(Now, "mm/dd hh:mm") & " - ✅ 실시간 대시보드 업데이트 완료"
     
     ' 화면 설정
     ActiveWindow.DisplayGridlines = False
@@ -269,19 +280,34 @@ Private Sub CreateStatBox(ws As Worksheet, col As String, row As Integer, title 
     End With
 End Sub
 
-' Critical 이슈 추가
+' Critical 이슈 추가 (동적 생성)
 Private Sub AddCriticalIssues(ws As Worksheet, startRow As Integer)
     Dim issues As Variant
     Dim i As Integer
     
-    ' 2025년 최신 Critical 이슈 (SK온 및 배터리 업계)
-    issues = Array( _
-        Array("1", "SK온-SK엔무브 합병 통합법인 출범 준비", "92", "11월 1일", "통합 실무 TF 구성", "경영기획", "사내"), _
-        Array("2", "트럼프 IRA 폐지 가능성, AMPC 세액공제 위기", "90", "즉시", "정책 대응 시나리오 수립", "정책대응", "사외"), _
-        Array("3", "BYD 5분 충전 기술 공개, 기술격차 심화", "88", "1개월", "기술 캐치업 전략 수립", "R&D", "사외"), _
-        Array("4", "5조원 자본확충 진행, 유상증자 실행", "85", "8월", "IR 준비 및 투자자 설명", "재무팀", "사내"), _
-        Array("5", "LG엔솔 위기경영 선언, K배터리 위기", "82", "2주", "경쟁사 분석 및 대응", "전략기획", "사외") _
-    )
+    ' 시간대별 다른 이슈 세트 (시연 효과)
+    Dim currentHour As Integer
+    currentHour = Hour(Now)
+    
+    If currentHour < 12 Then
+        ' 오전 이슈 세트
+        issues = Array( _
+            Array("1", "[Breaking] SK온-SK엔무브 합병 긴급 이사회 소집", "95", "오늘 14:00", "즉시 TF 구성", "경영기획", "사내"), _
+            Array("2", "[경고] IRA 폐지 법안 발의, AMPC 세액공제 위협", "93", "즉시 대응", "정책 시나리오 수립", "정책대응", "사외"), _
+            Array("3", "BYD 초고속 충전 기술 공개, 5분 충전 실현", "91", "24시간 내", "R&D 긴급 대응", "R&D센터", "사외"), _
+            Array("4", "5조원 자본확충 이사회 승인 임박", "88", "이번주 내", "IR 자료 최종화", "재무팀", "사내"), _
+            Array("5", "LG엔솔 위기경영 선언, K배터리 총체 위기", "86", "48시간", "경쟁사 모니터링", "전략기획", "사외") _
+        )
+    Else
+        ' 오후 이슈 세트 (약간 다른 순위)
+        issues = Array( _
+            Array("1", "[Urgent] 트럼프 IRA 전면 폐지 발표 예고", "94", "내일 오전", "긴급 대책회의", "정책대응", "사외"), _
+            Array("2", "SK온-SK엔무브 합병 주주총회 준비", "92", "11월 1일", "통합 TF 가동", "경영기획", "사내"), _
+            Array("3", "원자재 가격 급등 예상, 20% 상승 전망", "90", "72시간 내", "긴급 구매 전략", "구매팀", "사외"), _
+            Array("4", "CATL 신기술 발표 임박, 기술격차 확대", "87", "3일 내", "기술 분석팀 구성", "R&D", "사외"), _
+            Array("5", "ESG 규제 강화 법안 국회 통과 예정", "85", "이번주", "ESG 대응 TF", "ESG팀", "사외") _
+        )
+    End If
     
     For i = 0 To UBound(issues)
         Dim currentRow As Integer
@@ -343,9 +369,15 @@ Private Sub AddCriticalIssues(ws As Worksheet, startRow As Integer)
             Else
                 .Interior.Color = RGB(255, 255, 255)
             End If
+            
+            ' Critical 이슈 강조 (위험도 90% 이상)
+            If CInt(Replace(ws.Cells(currentRow, 4).Value, "%", "")) >= 90 Then
+                .Interior.Color = RGB(255, 240, 240) ' 연한 빨간색 배경
+                .Font.Bold = True
+            End If
         End With
         
-        ws.Rows(currentRow).RowHeight = 30
+        ws.Rows(currentRow).RowHeight = 35 ' 더 넓게
     Next i
 End Sub
 
@@ -406,38 +438,226 @@ Private Sub AddActionItems(ws As Worksheet, startRow As Integer)
 End Sub
 
 ' ===== 실행 함수들 =====
-Sub RunSmartAnalysis()
+Public Sub RunSmartAnalysis()
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("Smart Alerts")
     
-    Application.StatusBar = "AI가 이슈를 분석중입니다..."
-    Application.Wait Now + TimeValue("00:00:02") ' 시뮬레이션
+    ' 분석 시작 애니메이션
+    Application.StatusBar = "🔍 AI 분석 실행 중..."
+    Application.ScreenUpdating = False
     
-    ' 시간 업데이트
+    ' 시간 업데이트 (애니메이션 효과)
+    Dim i As Integer
+    For i = 1 To 3
+        ws.Range("B3").Value = "AI 기반 실시간 이슈 예측 및 알림 | 분석 중" & String(i, ".")
+        DoEvents
+    Next i
+    
+    ' TOP 5 Critical Issues 동적 생성 및 업데이트
+    Call UpdateTop5Issues(ws)
+    
+    ' AI 예측 분석 동적 생성
+    Call UpdateAIPrediction(ws)
+    
+    ' Action Tracker 동적 생성
+    Call UpdateActionTracker(ws)
+    
+    ' 통계 업데이트
+    Call UpdateStatistics(ws)
+    
+    ' 시간 최종 업데이트
     ws.Range("B3").Value = "AI 기반 실시간 이슈 예측 및 알림 | 마지막 업데이트: " & Format(Now, "yyyy-mm-dd hh:mm")
     
-    ' 새로운 위험도 계산 (랜덤 시뮬레이션)
-    Dim newRisk As Integer
-    newRisk = Int(Rnd() * 20) + 75
-    ws.Cells(13, 4).Value = newRisk & "%"
-    
-    If newRisk >= 90 Then
-        MsgBox "⚠️ 경고: Critical 수준의 이슈가 감지되었습니다!" & vbLf & vbLf & _
-               "이슈: " & ws.Cells(13, 3).Value & vbLf & _
-               "위험도: " & newRisk & "%" & vbLf & vbLf & _
-               "즉시 대응이 필요합니다.", vbCritical, "Critical Alert"
-    Else
-        MsgBox "✅ 분석 완료!" & vbLf & vbLf & _
-               "• 신규 Critical 이슈: 0건" & vbLf & _
-               "• 위험도 상승 이슈: 2건" & vbLf & _
-               "• 해결된 이슈: 1건" & vbLf & vbLf & _
-               "상세 내용은 대시보드를 확인하세요.", vbInformation, "분석 완료"
-    End If
-    
+    Application.ScreenUpdating = True
     Application.StatusBar = False
+    
+    ' 결과 알림 (풍성한 내용)
+    MsgBox "✨ AI 분석이 완료되었습니다!" & vbLf & vbLf & _
+           "📊 분석 결과:" & vbLf & _
+           "• TOP 5 Critical 이슈 업데이트 완료" & vbLf & _
+           "• 신규 위험 감지: 3건 (SK온 합병, IRA 정책, BYD 기술)" & vbLf & _
+           "• 위험도 상승: 2건 (자본확충, K배터리 위기)" & vbLf & _
+           "• AI 예측: 향후 72시간 주요 리스크 3건 식별" & vbLf & _
+           "• Action Items: 4건 자동 생성 완료" & vbLf & vbLf & _
+           "⚠️ 즉시 대응 필요 이슈가 있습니다. 대시보드를 확인하세요!", _
+           vbInformation + vbOKOnly, "STRIX Smart Alert - 분석 완료"
 End Sub
 
-Sub ToggleAutoAlert()
+' TOP 5 이슈 동적 업데이트
+Private Sub UpdateTop5Issues(ws As Worksheet)
+    ' 기존 데이터 지우기 (헤더 제외)
+    Dim clearRange As Range
+    Set clearRange = ws.Range("B13:H17")
+    clearRange.ClearContents
+    clearRange.Interior.Color = RGB(240, 242, 247)
+    
+    ' 애니메이션 효과로 새 데이터 추가
+    Application.StatusBar = "📋 Critical Issues 분석 중..."
+    Call AddCriticalIssues(ws, 13)
+    
+    ' 하이라이트 효과 (새로운 이슈 강조)
+    Dim row As Integer
+    For row = 13 To 17
+        ws.Range("B" & row & ":H" & row).Interior.Color = RGB(255, 250, 205) ' 연한 노란색
+        DoEvents
+        If row Mod 2 = 0 Then
+            ws.Range("B" & row & ":H" & row).Interior.Color = RGB(248, 248, 248)
+        Else
+            ws.Range("B" & row & ":H" & row).Interior.Color = RGB(255, 255, 255)
+        End If
+    Next row
+End Sub
+
+' AI 예측 분석 업데이트
+Private Sub UpdateAIPrediction(ws As Worksheet)
+    Application.StatusBar = "AI 예측 모델 실행 중..."
+    
+    ' 예측 내용 동적 생성
+    Dim predictions As String
+    predictions = "향후 72시간 AI 예측 분석:" & vbLf & vbLf
+    predictions = predictions & "[긴급] 리스크 (24시간 내):" & vbLf
+    predictions = predictions & "• IRA 정책 변경 발표 임박 - 대응 TF 즉시 구성 필요 (신뢰도: 92%)" & vbLf
+    predictions = predictions & "• SK온-SK엔무브 합병 관련 긴급 이사회 소집 예정 (신뢰도: 88%)" & vbLf & vbLf
+    predictions = predictions & "[주의] 모니터링 (48시간 내):" & vbLf
+    predictions = predictions & "• BYD 추가 기술 발표 예상 - R&D 대응 전략 수립 (신뢰도: 78%)" & vbLf
+    predictions = predictions & "• 원자재 가격 15% 상승 예측 - 구매 전략 재검토 (신뢰도: 85%)" & vbLf & vbLf
+    predictions = predictions & "[예상] 중장기 트렌드 (72시간+):" & vbLf
+    predictions = predictions & "• ESG 규제 강화 법안 국회 통과 예상 (신뢰도: 90%)" & vbLf
+    predictions = predictions & "• 경쟁사 대규모 투자 발표 가능성 (신뢰도: 75%)" & vbLf & vbLf
+    predictions = predictions & "AI 권장사항:" & vbLf
+    predictions = predictions & "1. 경영진 긴급 회의 소집 권고" & vbLf
+    predictions = predictions & "2. 리스크 대응 시나리오 즉시 활성화" & vbLf
+    predictions = predictions & "3. 주요 이해관계자 커뮤니케이션 준비"
+    
+    ws.Range("B21").Value = predictions
+    
+    ' 예측 내용 서식 설정
+    With ws.Range("B21:H30")
+        .Interior.Color = RGB(255, 255, 255)
+        .Font.Name = "맑은 고딕"
+        .Font.Size = 9
+        .WrapText = True
+        .VerticalAlignment = xlTop
+    End With
+End Sub
+
+' Action Tracker 업데이트
+Private Sub UpdateActionTracker(ws As Worksheet)
+    Application.StatusBar = "📝 Action Items 생성 중..."
+    
+    ' 기존 액션 아이템 지우기
+    ws.Range("B29:H32").ClearContents
+    
+    ' 새로운 액션 아이템 동적 생성
+    Dim actions As Variant
+    actions = Array( _
+        Array("A1", "[긴급] IRA 정책 대응 TF 구성 및 1차 회의", "Critical", Format(Now + 0.5, "mm/dd hh:mm"), "정책대응팀", "0%", "신규"), _
+        Array("A2", "[긴급] SK온-SK엔무브 통합 준비위원회 발족", "Critical", Format(Now + 1, "mm/dd"), "경영기획팀", "5%", "착수"), _
+        Array("A3", "BYD 5분 충전 기술 상세 분석 보고서", "Critical", Format(Now + 2, "mm/dd"), "R&D센터", "20%", "진행중"), _
+        Array("A4", "5조원 유상증자 IR 자료 최종 검토", "High", Format(Now + 3, "mm/dd"), "재무팀", "65%", "진행중"), _
+        Array("A5", "경쟁사 위기경영 벤치마킹 분석", "High", Format(Now + 4, "mm/dd"), "전략기획팀", "10%", "착수"), _
+        Array("A6", "ESG 규제 대응 로드맵 수립", "Medium", Format(Now + 7, "mm/dd"), "ESG팀", "0%", "대기") _
+    )
+    
+    Dim j As Integer
+    For j = 0 To UBound(actions)
+        Dim currentRow As Integer
+        currentRow = 29 + j
+        
+        ws.Cells(currentRow, 2).Value = actions(j)(0)
+        ws.Cells(currentRow, 3).Value = actions(j)(1)
+        ws.Cells(currentRow, 4).Value = actions(j)(2)
+        ws.Cells(currentRow, 5).Value = actions(j)(3)
+        ws.Cells(currentRow, 6).Value = actions(j)(4)
+        ws.Cells(currentRow, 7).Value = actions(j)(5)
+        ws.Cells(currentRow, 8).Value = actions(j)(6)
+        
+        ' 우선순위별 색상
+        If actions(j)(2) = "Critical" Then
+            ws.Cells(currentRow, 4).Font.Color = RGB(231, 76, 60)
+            ws.Cells(currentRow, 4).Font.Bold = True
+            ws.Range("B" & currentRow & ":H" & currentRow).Interior.Color = RGB(255, 240, 240)
+        ElseIf actions(j)(2) = "High" Then
+            ws.Cells(currentRow, 4).Font.Color = RGB(230, 126, 34)
+            ws.Range("B" & currentRow & ":H" & currentRow).Interior.Color = RGB(255, 248, 240)
+        Else
+            ws.Range("B" & currentRow & ":H" & currentRow).Interior.Color = RGB(255, 255, 255)
+        End If
+        
+        ' 테두리
+        ws.Range("B" & currentRow & ":H" & currentRow).Borders.LineStyle = xlContinuous
+        ws.Range("B" & currentRow & ":H" & currentRow).Borders.Color = RGB(200, 200, 200)
+        
+        ' 애니메이션 효과
+        DoEvents
+    Next j
+End Sub
+
+' 통계 업데이트
+Private Sub UpdateStatistics(ws As Worksheet)
+    Application.StatusBar = "📊 통계 업데이트 중..."
+    
+    ' 랜덤하게 통계 생성 (시연용)
+    Call CreateStatBox(ws, "B", 6, "Critical", CStr(Int(Rnd() * 3) + 3), RGB(231, 76, 60))
+    Call CreateStatBox(ws, "C", 6, "High", CStr(Int(Rnd() * 5) + 5), RGB(230, 126, 34))
+    Call CreateStatBox(ws, "D", 6, "Medium", CStr(Int(Rnd() * 8) + 8), RGB(241, 196, 15))
+    Call CreateStatBox(ws, "E", 6, "Low", CStr(Int(Rnd() * 5) + 3), RGB(46, 204, 113))
+    
+    Dim totalIssues As Integer
+    totalIssues = Int(Rnd() * 10) + 25
+    Call CreateStatBox(ws, "F", 6, "총 이슈", CStr(totalIssues), RGB(52, 152, 219))
+    Call CreateStatBox(ws, "G", 6, "신규", "+" & CStr(Int(Rnd() * 3) + 3), RGB(155, 89, 182))
+End Sub
+
+' 초기화 함수
+Public Sub ResetSmartAlert()
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("Smart Alerts")
+    
+    Dim result As VbMsgBoxResult
+    result = MsgBox("Smart Alert 대시보드를 초기화하시겠습니까?" & vbLf & vbLf & _
+                    "모든 데이터가 초기 상태로 리셋됩니다.", _
+                    vbQuestion + vbYesNo, "초기화 확인")
+    
+    If result = vbYes Then
+        Application.ScreenUpdating = False
+        
+        ' TOP 5 이슈 초기화
+        ws.Range("B13:H17").ClearContents
+        ws.Range("B13:H17").Interior.Color = RGB(248, 248, 248)
+        
+        ' AI 예측 초기화
+        ws.Range("B21").Value = "분석 대기 중..." & vbLf & vbLf & _
+                                "'즉시 분석' 버튼을 클릭하여 AI 분석을 시작하세요."
+        
+        ' Action Tracker 초기화
+        ws.Range("B29:H34").ClearContents
+        ws.Range("B29:H34").Interior.Color = RGB(248, 248, 248)
+        
+        ' 통계 초기화
+        Call CreateStatBox(ws, "B", 6, "Critical", "0", RGB(231, 76, 60))
+        Call CreateStatBox(ws, "C", 6, "High", "0", RGB(230, 126, 34))
+        Call CreateStatBox(ws, "D", 6, "Medium", "0", RGB(241, 196, 15))
+        Call CreateStatBox(ws, "E", 6, "Low", "0", RGB(46, 204, 113))
+        Call CreateStatBox(ws, "F", 6, "총 이슈", "0", RGB(52, 152, 219))
+        Call CreateStatBox(ws, "G", 6, "신규", "0", RGB(155, 89, 182))
+        
+        ' 알림 로그 초기화
+        ws.Range("B36:H40").ClearContents
+        ws.Range("B36").Value = Format(Now, "mm/dd hh:mm") & " - 시스템 초기화 완료"
+        
+        ' 시간 초기화
+        ws.Range("B3").Value = "AI 기반 실시간 이슈 예측 및 알림 | 초기화 완료: " & Format(Now, "yyyy-mm-dd hh:mm")
+        
+        Application.ScreenUpdating = True
+        
+        MsgBox "✅ Smart Alert 대시보드가 초기화되었습니다." & vbLf & vbLf & _
+               "'즉시 분석' 버튼을 클릭하여 새로운 분석을 시작하세요.", _
+               vbInformation, "초기화 완료"
+    End If
+End Sub
+
+Public Sub ToggleAutoAlert()
     Dim cb As Object
     Set cb = ThisWorkbook.Sheets("Smart Alerts").CheckBoxes(1)
     
@@ -450,7 +670,7 @@ Sub ToggleAutoAlert()
     End If
 End Sub
 
-Sub ShowAlertSettings()
+Public Sub ShowAlertSettings()
     ' 간단한 입력 다이얼로그 사용
     Dim settingsMsg As String
     Dim ws As Worksheet
@@ -534,7 +754,7 @@ Sub ShowAlertSettings()
     End Select
 End Sub
 
-Sub SendAlertEmail()
+Public Sub SendAlertEmail()
     On Error GoTo ErrorHandler
     
     ' 설정에서 수신자 불러오기

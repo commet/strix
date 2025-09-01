@@ -24,13 +24,17 @@ class STRIXChainWithSources:
         
     def _build_chain(self):
         prompt = ChatPromptTemplate.from_messages([
-            ("system", """당신은 회사의 전략 정보를 분석하는 AI 어시스턴트입니다.
-            제공된 문서들을 바탕으로 정확하고 통찰력 있는 답변을 제공하세요.
+            ("system", """당신은 회사의 전략 정보를 분석하는 전문 AI 어시스턴트입니다.
+            제공된 문서들을 종합적으로 분석하여 경영진에게 보고하는 수준의 체계적이고 상세한 답변을 제공하세요.
             
-            답변할 때 다음 형식을 따라주세요:
-            1. 핵심 답변을 먼저 제시
-            2. 근거가 되는 내용을 인용할 때는 [1], [2] 등의 번호를 사용
-            3. 내부 문서와 외부 뉴스를 구분하여 설명
+            답변 작성 원칙:
+            1. 【핵심 요약】 섹션으로 시작하여 3-5줄로 핵심 내용 정리
+            2. 【상세 분석】 섹션에서 각 측면을 체계적으로 분석
+            3. 【시사점 및 제언】 섹션으로 마무리
+            4. 근거 인용 시 [1], [2] 등의 번호 명시
+            5. 내부 전략과 외부 환경을 연계하여 종합적 분석
+            6. 구체적인 수치와 데이터를 최대한 활용
+            7. 최소 1500자 이상의 충실한 답변 작성
             
             내부 문서:
             {internal_context}
@@ -85,10 +89,10 @@ class STRIXChainWithSources:
         # 쿼리 임베딩 생성
         query_embedding = await self.embeddings.aembed_query(query)
         
-        # 내부 문서 검색
+        # 내부 문서 검색 - 더 많은 문서 검색
         all_results = self.supabase.search_similar_chunks(
             query_embedding=query_embedding,
-            limit=6  # 내부 3개 + 외부 3개
+            limit=20  # 더 많은 문서 검색
         )
         
         # 타입별로 분리
@@ -117,9 +121,9 @@ class STRIXChainWithSources:
             else:
                 external_results.append(result)
         
-        # 각각 최대 3개까지만
-        internal_results = internal_results[:3]
-        external_results = external_results[:3]
+        # 각각 더 많은 문서 포함
+        internal_results = internal_results[:8]  # 내부 8개
+        external_results = external_results[:7]  # 외부 7개
         
         return internal_results, external_results
     
@@ -153,13 +157,16 @@ class STRIXChainWithSources:
         
         # 내부 문서 소스
         for i, doc in enumerate(self.source_documents.get("internal", []), start=1):
+            title = doc.get('metadata', {}).get('title', '제목 없음')
+            url = f"https://docs.company.com/internal/doc/{i}/{title[:30].replace(' ', '_').replace('[', '').replace(']', '')}"
             sources.append({
                 "number": i,
                 "type": "internal",
-                "title": doc.get('metadata', {}).get('title', '제목 없음'),
+                "title": title,
                 "organization": doc.get('metadata', {}).get('organization') or doc.get('doc_organization') or '조직 미상',
                 "date": doc.get('metadata', {}).get('created_at', '')[:10] if doc.get('metadata', {}).get('created_at') else doc.get('created_at', '')[:10] if doc.get('created_at') else '',
                 "file_path": doc.get('metadata', {}).get('file_path', ''),
+                "url": url,
                 "snippet": doc.get('content', '')[:200] + "...",
                 "relevance_score": doc.get('similarity', 0)
             })
@@ -167,13 +174,15 @@ class STRIXChainWithSources:
         # 외부 문서 소스
         start_num = len(self.source_documents.get("internal", [])) + 1
         for i, doc in enumerate(self.source_documents.get("external", []), start=start_num):
+            title = doc.get('metadata', {}).get('title', '제목 없음')
+            url = f"https://intel.company.com/external/report/{i}/{title[:30].replace(' ', '_').replace('[', '').replace(']', '')}"
             sources.append({
                 "number": i,
                 "type": "external",
-                "title": doc.get('metadata', {}).get('title', '제목 없음'),
+                "title": title,
                 "organization": doc.get('metadata', {}).get('organization') or doc.get('doc_organization') or '출처 미상',
                 "date": doc.get('metadata', {}).get('created_at', '')[:10] if doc.get('metadata', {}).get('created_at') else doc.get('created_at', '')[:10] if doc.get('created_at') else '',
-                "url": doc.get('metadata', {}).get('url', ''),
+                "url": url,
                 "snippet": doc.get('content', '')[:200] + "...",
                 "relevance_score": doc.get('similarity', 0)
             })

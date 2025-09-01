@@ -5,13 +5,13 @@ Option Explicit
 
 Private Const API_TIMEOUT As Long = 30000 ' 30초 타임아웃
 
-' API URL 함수로 정의 (Const 대신)
+' API URL 함수로 정의
 Private Function API_URL() As String
     API_URL = "http://localhost:5000/api/query"
 End Function
 
 ' JSON 파싱을 위한 타입 정의
-Public Type SourceDocument
+Type SourceDocument
     title As String
     organization As String
     docDate As String
@@ -21,7 +21,7 @@ Public Type SourceDocument
 End Type
 
 ' API 응답 타입
-Public Type RAGAPIResponse
+Type RAGAPIResponse
     answer As String
     sources As Collection
     totalSources As Integer
@@ -31,7 +31,7 @@ Public Type RAGAPIResponse
 End Type
 
 ' 실제 RAG API 호출 함수
-Public Function CallRAGAPI(question As String, Optional docType As String = "both") As RAGAPIResponse
+Function CallRAGAPI(question As String, Optional docType As String = "both") As RAGAPIResponse
     Dim xmlHttp As Object
     Dim jsonRequest As Object
     Dim jsonResponse As Object
@@ -187,15 +187,6 @@ Sub DisplayRAGSources(ws As Worksheet, startRow As Integer, sources As Collectio
     
     currentRow = startRow
     
-    ' 헤더가 이미 Dashboard에 있으므로 데이터만 표시
-    ' Executive Dashboard인 경우
-    If ws.Cells(28, 7).Value = "문서유형" Then
-        ' Executive Dashboard 형식으로 표시
-        Call DisplayExecutiveSources(ws, currentRow, sources)
-        Exit Sub
-    End If
-    
-    ' 기존 Dashboard 형식
     ' 헤더 스타일
     With ws.Range("B" & currentRow & ":F" & currentRow)
         .Font.Bold = True
@@ -250,10 +241,10 @@ Sub DisplayRAGSources(ws As Worksheet, startRow As Integer, sources As Collectio
                     ws.Cells(currentRow, 6).Interior.Color = RGB(255, 199, 206)
             End Select
             
-            ' 관련도 점수는 따로 표시하지 않음 (Executive Dashboard에서 처리)
-            ' If src.relevance > 0 Then
-            '     ws.Cells(currentRow, 3).Value = src.title & " (" & Format(src.relevance * 100, "0") & "%)"
-            ' End If
+            ' 관련도 점수가 있으면 표시
+            If src.relevance > 0 Then
+                ws.Cells(currentRow, 3).Value = src.title & " (" & Format(src.relevance * 100, "0") & "%)"
+            End If
             
             ' 행 서식
             With ws.Range("B" & currentRow & ":F" & currentRow)
@@ -270,131 +261,6 @@ Sub DisplayRAGSources(ws As Worksheet, startRow As Integer, sources As Collectio
     Else
         ' 소스가 없는 경우 Enhanced Sources 사용
         Call modEnhancedSources.DisplayEnhancedSources(ws, currentRow - 1)
-    End If
-End Sub
-
-' Executive Dashboard용 소스 문서 표시
-Sub DisplayExecutiveSources(ws As Worksheet, startRow As Integer, sources As Collection)
-    Dim currentRow As Integer
-    Dim i As Integer
-    Dim src As SourceDocument
-    
-    currentRow = 29  ' Executive Dashboard는 29행부터 시작
-    
-    ' 기존 데이터 클리어
-    ws.Range("B29:H50").Clear
-    With ws.Range("B29:H50")
-        .Interior.Color = RGB(255, 255, 255)
-        .Borders.LineStyle = xlContinuous
-        .Borders.Color = RGB(200, 200, 200)
-        .Font.Size = 10
-    End With
-    
-    ' 소스 데이터 표시
-    If sources.Count > 0 Then
-        For i = 1 To sources.Count
-            If currentRow > 50 Then Exit For  ' 최대 표시 행
-            
-            src = sources(i)
-            
-            ' 번호
-            ws.Cells(currentRow, 2).Value = "[" & i & "]"
-            ws.Cells(currentRow, 2).Font.Bold = True
-            ws.Cells(currentRow, 2).Font.Color = RGB(0, 112, 192)
-            ws.Cells(currentRow, 2).HorizontalAlignment = xlCenter
-            
-            ' 제목 (관련도 제외)
-            ws.Cells(currentRow, 3).Value = src.title
-            ws.Cells(currentRow, 3).WrapText = True
-            
-            ' 조직/출처
-            ws.Cells(currentRow, 4).Value = src.organization
-            ws.Cells(currentRow, 4).HorizontalAlignment = xlCenter
-            
-            ' 날짜
-            ws.Cells(currentRow, 5).Value = src.docDate
-            ws.Cells(currentRow, 5).HorizontalAlignment = xlCenter
-            
-            ' 유형 (사내/사외) - 색상 코딩
-            Dim displayType As String
-            Select Case src.docType
-                Case "internal"
-                    displayType = "사내"
-                    ws.Cells(currentRow, 6).Interior.Color = RGB(255, 230, 230)
-                    ws.Cells(currentRow, 6).Font.Color = RGB(255, 0, 0)
-                Case "external"
-                    displayType = "사외"
-                    ws.Cells(currentRow, 6).Interior.Color = RGB(230, 240, 255)
-                    ws.Cells(currentRow, 6).Font.Color = RGB(0, 112, 192)
-                Case Else
-                    displayType = src.docType
-            End Select
-            ws.Cells(currentRow, 6).Value = displayType
-            ws.Cells(currentRow, 6).Font.Bold = True
-            ws.Cells(currentRow, 6).HorizontalAlignment = xlCenter
-            
-            ' 문서 유형 (보고서, 회의록, 뉴스 등)
-            Dim docCategory As String
-            If displayType = "사내" Then
-                If InStr(src.title, "보고") > 0 Then
-                    docCategory = "보고서"
-                ElseIf InStr(src.title, "회의") > 0 Then
-                    docCategory = "회의록"
-                ElseIf InStr(src.title, "전략") > 0 Then
-                    docCategory = "전략문서"
-                ElseIf InStr(src.title, "분석") > 0 Then
-                    docCategory = "분석자료"
-                ElseIf InStr(src.title, "R&D") > 0 Or InStr(src.title, "기술") > 0 Then
-                    docCategory = "기술문서"
-                ElseIf InStr(src.title, "ESG") > 0 Then
-                    docCategory = "ESG문서"
-                Else
-                    docCategory = "일반문서"
-                End If
-            Else  ' 사외
-                If InStr(src.title, "뉴스") > 0 Or InStr(src.title, "속보") > 0 Then
-                    docCategory = "뉴스"
-                ElseIf InStr(src.title, "리포트") > 0 Then
-                    docCategory = "리포트"
-                ElseIf InStr(src.title, "동향") > 0 Then
-                    docCategory = "동향분석"
-                ElseIf InStr(src.title, "정책") > 0 Or InStr(src.title, "규제") > 0 Then
-                    docCategory = "정책자료"
-                Else
-                    docCategory = "외부자료"
-                End If
-            End If
-            ws.Cells(currentRow, 7).Value = docCategory
-            ws.Cells(currentRow, 7).HorizontalAlignment = xlCenter
-            
-            ' 관련도
-            If src.relevance > 0 Then
-                ws.Cells(currentRow, 8).Value = Format(src.relevance * 100, "0") & "%"
-                ws.Cells(currentRow, 8).HorizontalAlignment = xlCenter
-                ws.Cells(currentRow, 8).Font.Bold = True
-                
-                ' 관련도에 따른 색상
-                If src.relevance > 0.8 Then
-                    ws.Cells(currentRow, 8).Font.Color = RGB(0, 150, 0)  ' 높음 - 녹색
-                ElseIf src.relevance > 0.7 Then
-                    ws.Cells(currentRow, 8).Font.Color = RGB(255, 140, 0)  ' 중간 - 주황색
-                Else
-                    ws.Cells(currentRow, 8).Font.Color = RGB(150, 150, 150)  ' 낮음 - 회색
-                End If
-            End If
-            
-            ' 행 서식
-            With ws.Range("B" & currentRow & ":H" & currentRow)
-                .Borders.LineStyle = xlContinuous
-                .Borders.Color = RGB(200, 200, 200)
-                If i Mod 2 = 0 Then
-                    .Interior.Color = RGB(248, 248, 248)
-                End If
-            End With
-            
-            ws.Rows(currentRow).RowHeight = 22
-            currentRow = currentRow + 1
-        Next i
     End If
 End Sub
 
